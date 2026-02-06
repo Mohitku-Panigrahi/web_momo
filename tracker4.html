@@ -1,0 +1,2609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerCouple | Productivity Suite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Poppins:wght@300;400;600;700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ============================================
+           RESET & VARIABLES
+        ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        :root {
+            --cse-primary: #3b82f6;
+            --cse-secondary: #06b6d4;
+            --neet-primary: #8b5cf6;
+            --neet-secondary: #10b981;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            
+            --bg-primary: #0a0f1c;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1f2937;
+            
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            
+            --border-color: #374151;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            
+            --animation-speed: 0.3s;
+        }
+
+        /* Theme Variations */
+        body.theme-sunrise {
+            --cse-primary: #ef4444;
+            --cse-secondary: #f97316;
+            --neet-primary: #8b5cf6;
+            --neet-secondary: #ec4899;
+            --bg-primary: #1c1917;
+            --bg-secondary: #292524;
+        }
+
+        body.theme-forest {
+            --cse-primary: #10b981;
+            --cse-secondary: #34d399;
+            --neet-primary: #3b82f6;
+            --neet-secondary: #06b6d4;
+            --bg-primary: #052e16;
+            --bg-secondary: #14532d;
+        }
+
+        body.theme-royal {
+            --cse-primary: #8b5cf6;
+            --cse-secondary: #a78bfa;
+            --neet-primary: #ec4899;
+            --neet-secondary: #f472b6;
+            --bg-primary: #1e1b4b;
+            --bg-secondary: #312e81;
+        }
+
+        body.light-mode {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.05);
+        }
+
+        /* ============================================
+           SPLASH SCREEN ANIMATION
+        ============================================ */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .splash-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-content {
+            text-align: center;
+            max-width: 500px;
+            padding: 2rem;
+        }
+
+        .splash-avatars {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .splash-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            position: relative;
+        }
+
+        .splash-avatar.coder {
+            background: linear-gradient(135deg, var(--cse-primary), var(--cse-secondary));
+            box-shadow: 0 0 30px var(--cse-primary);
+        }
+
+        .splash-avatar.doctor {
+            background: linear-gradient(135deg, var(--neet-primary), var(--neet-secondary));
+            box-shadow: 0 0 30px var(--neet-primary);
+        }
+
+        .splash-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--cse-primary), var(--neet-primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            opacity: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .splash-title::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            animation: typewriter 2s steps(30) forwards;
+        }
+
+        @keyframes typewriter {
+            to {
+                left: 100%;
+            }
+        }
+
+        .splash-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+        }
+
+        .splash-heart {
+            font-size: 3rem;
+            color: var(--accent-color);
+            margin: 2rem 0;
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        .splash-names {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+        }
+
+        .name-tag {
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .name-tag.coder {
+            background: linear-gradient(135deg, var(--cse-primary), transparent);
+            border: 2px solid var(--cse-primary);
+        }
+
+        .name-tag.doctor {
+            background: linear-gradient(135deg, var(--neet-primary), transparent);
+            border: 2px solid var(--neet-primary);
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            margin: 2rem auto;
+            overflow: hidden;
+            opacity: 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cse-primary), var(--neet-primary));
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .skip-btn {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            backdrop-filter: blur(10px);
+        }
+
+        /* ============================================
+           MAIN APP STYLES
+        ============================================ */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            opacity: 0;
+            animation: fadeIn 0.5s 3.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            animation: slideDown 0.6s 3.8s both;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--cse-primary), var(--neet-primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+        }
+
+        .logo-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all var(--animation-speed);
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cse-primary), var(--neet-primary));
+            color: white;
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--shadow-color);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--cse-primary);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            animation: slideUp 0.6s 4s both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Stats Cards */
+        .stats-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--glass-shadow);
+            animation: cardAppear 0.5s both;
+            animation-delay: calc(4s + var(--delay, 0s));
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .stats-card.cse {
+            border-top: 4px solid var(--cse-primary);
+        }
+
+        .stats-card.neet {
+            border-top: 4px solid var(--neet-primary);
+        }
+
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .stats-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--cse-primary), var(--neet-primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Progress Circle */
+        .progress-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 1rem auto;
+        }
+
+        .progress-svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .progress-bg {
+            fill: none;
+            stroke: var(--border-color);
+            stroke-width: 8;
+        }
+
+        .progress-bar-circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .progress-percent {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+        }
+
+        .progress-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Badges */
+        .badges-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .badge {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: all var(--animation-speed);
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+        }
+
+        .badge.earned {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .badge.locked {
+            opacity: 0.5;
+            filter: grayscale(1);
+        }
+
+        .badge:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .badge-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .badge-name {
+            font-size: 0.7rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Weekly Goals */
+        .goals-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--glass-shadow);
+            animation: slideUp 0.6s 4.2s both;
+        }
+
+        .goals-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .goal-item {
+            background: var(--bg-tertiary);
+            padding: 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--accent-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .goal-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .goal-progress {
+            width: 200px;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .goal-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), #fbbf24);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* Analytics Panel */
+        .analytics-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--glass-shadow);
+            display: none;
+            animation: slideUp 0.6s both;
+        }
+
+        .analytics-panel.active {
+            display: block;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 1.5rem;
+            position: relative;
+        }
+
+        /* User Sections */
+        .user-section {
+            display: none;
+            animation: fadeInUp 0.5s both;
+        }
+
+        .user-section.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border-left: 6px solid;
+            animation: slideIn 0.6s 4.4s both;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .user-header.cse {
+            border-left-color: var(--cse-primary);
+        }
+
+        .user-header.neet {
+            border-left-color: var(--neet-primary);
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 10px 25px var(--shadow-color);
+        }
+
+        .user-avatar.cse {
+            background: linear-gradient(135deg, var(--cse-primary), var(--cse-secondary));
+        }
+
+        .user-avatar.neet {
+            background: linear-gradient(135deg, var(--neet-primary), var(--neet-secondary));
+        }
+
+        .user-info h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-subtitle {
+            color: var(--text-secondary);
+            font-style: italic;
+            font-size: 1.1rem;
+        }
+
+        /* Content Layout */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+            animation: slideUp 0.6s 4.6s both;
+        }
+
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Important Notes */
+        .notes-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            height: fit-content;
+            border-top: 4px solid var(--accent-color);
+            transition: all var(--animation-speed);
+        }
+
+        .notes-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px var(--shadow-color);
+        }
+
+        .notes-card h3 {
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: var(--accent-color);
+            font-size: 1.3rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.2rem;
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            resize: none;
+            line-height: 1.6;
+            transition: border-color var(--animation-speed);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--cse-primary);
+        }
+
+        /* Tasks Section */
+        .tasks-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border-top: 4px solid;
+        }
+
+        .tasks-card.cse {
+            border-top-color: var(--cse-primary);
+        }
+
+        .tasks-card.neet {
+            border-top-color: var(--neet-primary);
+        }
+
+        .tasks-card h3 {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1.5rem;
+            color: inherit;
+        }
+
+        .task-input {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .task-input input {
+            flex: 1;
+            padding: 1rem 1.2rem;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .task-input input:focus {
+            outline: none;
+            border-color: var(--cse-primary);
+        }
+
+        .task-list {
+            list-style: none;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .task-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .task-list::-webkit-scrollbar-track {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .task-list::-webkit-scrollbar-thumb {
+            background: var(--cse-primary);
+            border-radius: 3px;
+        }
+
+        .task-item {
+            background: var(--bg-tertiary);
+            margin-bottom: 0.8rem;
+            padding: 1.2rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: taskAppear 0.3s;
+            border-left: 4px solid;
+        }
+
+        @keyframes taskAppear {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .task-item.cse {
+            border-left-color: var(--cse-primary);
+        }
+
+        .task-item.neet {
+            border-left-color: var(--neet-primary);
+        }
+
+        .task-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .task-checkbox {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            transition: all var(--animation-speed);
+            flex-shrink: 0;
+        }
+
+        .task-checkbox:checked {
+            background: var(--success-color);
+            border-color: var(--success-color);
+            animation: checkboxPop 0.4s;
+        }
+
+        @keyframes checkboxPop {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .task-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .task-text {
+            font-size: 1.05rem;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .task-text.completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+            color: var(--text-secondary);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .task-actions button {
+            background: transparent;
+            color: var(--danger-color);
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all var(--animation-speed);
+        }
+
+        .task-actions button:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Motivation Board */
+        .motivation-board {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border-top: 4px solid var(--accent-color);
+            animation: slideUp 0.6s 4.8s both;
+        }
+
+        .messages-container {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+            padding-right: 0.5rem;
+        }
+
+        .message {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.8rem;
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .message.sent {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), transparent);
+            border-left-color: var(--cse-primary);
+        }
+
+        .message-sender {
+            font-weight: 700;
+            color: var(--cse-primary);
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .message-text {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .message-time {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            text-align: right;
+            margin-top: 0.5rem;
+        }
+
+        .quick-messages {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quick-message-btn {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: 0.6rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all var(--animation-speed);
+            font-size: 0.9rem;
+        }
+
+        .quick-message-btn:hover {
+            background: var(--cse-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .message-input-container {
+            display: flex;
+            gap: 1rem;
+        }
+
+        #motivationInput {
+            flex: 1;
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Celebration Overlay */
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.5s;
+        }
+
+        .celebration-overlay.active {
+            display: flex;
+        }
+
+        .celebration-content {
+            background: linear-gradient(135deg, var(--cse-primary), var(--neet-primary));
+            padding: 3rem;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 500px;
+            animation: scaleIn 0.5s;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .celebration-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .celebration-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .celebration-text {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Theme Selector */
+        .theme-selector {
+            position: relative;
+        }
+
+        .theme-options {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem;
+            display: none;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+            margin-top: 0.8rem;
+            box-shadow: var(--glass-shadow);
+            z-index: 1000;
+            min-width: 180px;
+            animation: fadeIn 0.3s;
+        }
+
+        .theme-options.active {
+            display: grid;
+        }
+
+        .theme-option {
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            border: 2px solid transparent;
+            transition: all var(--animation-speed);
+            font-size: 0.9rem;
+        }
+
+        .theme-option:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-option.midnight {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+        }
+
+        .theme-option.sunrise {
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            color: white;
+        }
+
+        .theme-option.forest {
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            color: white;
+        }
+
+        .theme-option.royal {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+        }
+
+        /* Quote Box */
+        .quote-box {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--cse-primary), var(--neet-primary));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            max-width: 400px;
+            box-shadow: 0 20px 40px var(--shadow-color);
+            display: none;
+            z-index: 999;
+            animation: slideInRight 0.5s;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .quote-box.active {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .quote-text {
+            font-size: 1.1rem;
+            font-style: italic;
+            margin-right: 1rem;
+            line-height: 1.5;
+        }
+
+        .quote-close {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* Footer */
+        .app-footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            animation: fadeIn 0.6s 5s both;
+        }
+
+        .app-footer i {
+            color: #ef4444;
+            animation: heartbeat 1.5s infinite;
+            margin: 0 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .app-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .controls {
+                justify-content: center;
+            }
+            
+            .splash-title {
+                font-size: 2rem;
+            }
+            
+            .splash-avatars {
+                gap: 1.5rem;
+            }
+            
+            .splash-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+            }
+            
+            .name-tag {
+                padding: 0.5rem 1rem;
+                font-size: 1rem;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .task-input {
+                flex-direction: column;
+            }
+            
+            .task-input input {
+                width: 100%;
+            }
+            
+            .message-input-container {
+                flex-direction: column;
+            }
+            
+            .goal-progress {
+                width: 150px;
+            }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="theme-midnight">
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <button class="skip-btn" id="skipSplash">Skip Intro</button>
+        <div class="splash-content">
+            <div class="splash-avatars" id="splashAvatars">
+                <div class="splash-avatar coder">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+                <div class="splash-avatar doctor">
+                    <i class="fas fa-stethoscope"></i>
+                </div>
+            </div>
+            
+            <h1 class="splash-title" id="splashTitle">POWER COUPLE PRODUCTIVITY</h1>
+            
+            <div class="splash-heart" id="splashHeart">
+                <i class="fas fa-heart"></i>
+            </div>
+            
+            <div class="splash-names" id="splashNames">
+                <div class="name-tag coder">B.Tech CSE</div>
+                <div class="name-tag doctor">NEET Prepper</div>
+            </div>
+            
+            <p class="splash-subtitle" id="splashSubtitle">Loading your productivity journey...</p>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="splashProgress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Celebration Overlay -->
+    <div class="celebration-overlay" id="celebrationOverlay">
+        <div class="celebration-content">
+            <div class="celebration-icon" id="celebrationIcon">🎉</div>
+            <h2 class="celebration-title" id="celebrationTitle">ACHIEVEMENT UNLOCKED!</h2>
+            <p class="celebration-text" id="celebrationText">You've earned a new badge!</p>
+            <button class="btn btn-primary" id="closeCelebration">
+                <i class="fas fa-trophy"></i> Awesome!
+            </button>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div>
+                    <div class="logo-text">PowerCouple</div>
+                    <div class="logo-subtitle">Productivity Suite</div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="theme-selector">
+                    <button class="btn btn-secondary" id="themeSelectorBtn">
+                        <i class="fas fa-palette"></i> Themes
+                    </button>
+                    <div class="theme-options" id="themeOptions">
+                        <div class="theme-option midnight" data-theme="midnight">Midnight</div>
+                        <div class="theme-option sunrise" data-theme="sunrise">Sunrise</div>
+                        <div class="theme-option forest" data-theme="forest">Forest</div>
+                        <div class="theme-option royal" data-theme="royal">Royal</div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-secondary" id="analyticsBtn">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </button>
+                
+                <button class="btn btn-primary" id="switchUserBtn">
+                    <i class="fas fa-sync-alt"></i> Switch to <span id="otherUserName">NEET</span>
+                </button>
+                
+                <button class="btn btn-secondary" id="themeToggle">
+                    <i class="fas fa-moon"></i> Theme
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard -->
+        <div class="dashboard-grid">
+            <!-- CSE Stats -->
+            <div class="stats-card cse" style="--delay: 0.1s">
+                <div class="stats-header">
+                    <h3 class="stats-title">
+                        <i class="fas fa-laptop-code"></i> CSE Warrior
+                    </h3>
+                    <div class="stats-value" id="cseProgressPercent">0%</div>
+                </div>
+                
+                <div class="progress-container">
+                    <svg class="progress-svg">
+                        <circle class="progress-bg" cx="60" cy="60" r="54"></circle>
+                        <circle class="progress-bar-circle" id="cseProgressCircle" cx="60" cy="60" r="54"
+                                stroke="var(--cse-primary)"></circle>
+                    </svg>
+                    <div class="progress-text">
+                        <div class="progress-percent" id="cseDailyPercent">0%</div>
+                        <div class="progress-label">Today</div>
+                    </div>
+                </div>
+                
+                <div class="badges-container" id="cseBadges">
+                    <!-- Badges will be loaded here -->
+                </div>
+            </div>
+
+            <!-- NEET Stats -->
+            <div class="stats-card neet" style="--delay: 0.2s">
+                <div class="stats-header">
+                    <h3 class="stats-title">
+                        <i class="fas fa-stethoscope"></i> NEET Master
+                    </h3>
+                    <div class="stats-value" id="neetProgressPercent">0%</div>
+                </div>
+                
+                <div class="progress-container">
+                    <svg class="progress-svg">
+                        <circle class="progress-bg" cx="60" cy="60" r="54"></circle>
+                        <circle class="progress-bar-circle" id="neetProgressCircle" cx="60" cy="60" r="54"
+                                stroke="var(--neet-primary)"></circle>
+                    </svg>
+                    <div class="progress-text">
+                        <div class="progress-percent" id="neetDailyPercent">0%</div>
+                        <div class="progress-label">Today</div>
+                    </div>
+                </div>
+                
+                <div class="badges-container" id="neetBadges">
+                    <!-- Badges will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Goals -->
+        <div class="goals-section">
+            <div class="goals-header">
+                <h3 class="section-title">
+                    <i class="fas fa-trophy"></i> Weekly Goals
+                </h3>
+                <button class="btn btn-secondary" id="setGoalsBtn">
+                    <i class="fas fa-plus"></i> New Goal
+                </button>
+            </div>
+            <div id="weeklyGoals">
+                <!-- Goals will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Analytics Panel -->
+        <div class="analytics-panel" id="analyticsPanel">
+            <div class="goals-header">
+                <h3 class="section-title">
+                    <i class="fas fa-chart-line"></i> Productivity Analytics
+                </h3>
+                <button class="btn btn-secondary" id="closeAnalytics">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+            <div class="chart-container">
+                <canvas id="productivityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- CSE User Section -->
+        <section id="userCSE" class="user-section active">
+            <div class="user-header cse">
+                <div class="user-avatar cse">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+                <div class="user-info">
+                    <h2>B.Tech CSE Mode</h2>
+                    <p class="user-subtitle">Code. Debug. Conquer. Innovate.</p>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="notes-card">
+                    <h3><i class="fas fa-exclamation-circle"></i> Important Notes</h3>
+                    <textarea id="cseImportant" placeholder="Your key reminders...&#10;• Midterm dates&#10;• Project deadlines&#10;• Assignment submissions"></textarea>
+                </div>
+
+                <div class="tasks-card cse">
+                    <h3><i class="fas fa-tasks"></i> Today's Coding Missions</h3>
+                    <div class="task-input">
+                        <input type="text" id="cseTaskInput" placeholder="Add a new task (e.g., Finish Python lab)">
+                        <button class="btn btn-primary" id="cseAddTask">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                    <ul class="task-list" id="cseTaskList">
+                        <!-- Tasks will be loaded here -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEET User Section -->
+        <section id="userNEET" class="user-section">
+            <div class="user-header neet">
+                <div class="user-avatar neet">
+                    <i class="fas fa-stethoscope"></i>
+                </div>
+                <div class="user-info">
+                    <h2>NEET Prepper Mode</h2>
+                    <p class="user-subtitle">Study. Focus. Achieve. Succeed.</p>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="notes-card">
+                    <h3><i class="fas fa-exclamation-circle"></i> Important Notes</h3>
+                    <textarea id="neetImportant" placeholder="Your key reminders...&#10;• NEET important dates&#10;• Weak subjects to focus&#10;• Mock test schedule"></textarea>
+                </div>
+
+                <div class="tasks-card neet">
+                    <h3><i class="fas fa-tasks"></i> Today's Study Plan</h3>
+                    <div class="task-input">
+                        <input type="text" id="neetTaskInput" placeholder="Add a new task (e.g., Biology revision)">
+                        <button class="btn btn-primary" id="neetAddTask">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                    <ul class="task-list" id="neetTaskList">
+                        <!-- Tasks will be loaded here -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Motivation Board -->
+        <div class="motivation-board">
+            <h3 class="section-title">
+                <i class="fas fa-heart"></i> Motivation Board
+            </h3>
+            
+            <div class="quick-messages">
+                <button class="quick-message-btn" data-msg="You got this! ❤️">You got this! ❤️</button>
+                <button class="quick-message-btn" data-msg="Proud of you! 🌟">Proud of you! 🌟</button>
+                <button class="quick-message-btn" data-msg="Keep going! 💪">Keep going! 💪</button>
+                <button class="quick-message-btn" data-msg="High five! ✋">High five! ✋</button>
+                <button class="quick-message-btn" data-msg="Love you! 😘">Love you! 😘</button>
+            </div>
+            
+            <div class="messages-container" id="messagesContainer">
+                <!-- Messages will be loaded here -->
+            </div>
+            
+            <div class="message-input-container">
+                <input type="text" id="motivationInput" placeholder="Type an encouraging message...">
+                <button class="btn btn-primary" id="sendMotivationBtn">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+            </div>
+        </div>
+
+        <!-- Quote Box -->
+        <div class="quote-box" id="quoteBox">
+            <p class="quote-text" id="quoteText">Complete a task to get motivated!</p>
+            <button class="quote-close" id="closeQuote">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>
+                Built with <i class="fas fa-heart"></i> for the ultimate power couple | 
+                B.Tech CSE <i class="fas fa-laptop-code"></i> × NEET Prepper <i class="fas fa-stethoscope"></i>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="completeSound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" preload="auto"></audio>
+    <audio id="messageSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
+    <audio id="celebrationSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" preload="auto"></audio>
+
+    <script>
+        // ============================================
+        // ULTIMATE POWER COUPLE PRODUCTIVITY SUITE v4.0
+        // ============================================
+
+        // DOM Elements
+        const splashScreen = document.getElementById('splashScreen');
+        const skipSplashBtn = document.getElementById('skipSplash');
+        const splashAvatars = document.getElementById('splashAvatars');
+        const splashTitle = document.getElementById('splashTitle');
+        const splashHeart = document.getElementById('splashHeart');
+        const splashNames = document.getElementById('splashNames');
+        const splashSubtitle = document.getElementById('splashSubtitle');
+        const splashProgress = document.getElementById('splashProgress');
+        
+        const celebrationOverlay = document.getElementById('celebrationOverlay');
+        const celebrationIcon = document.getElementById('celebrationIcon');
+        const celebrationTitle = document.getElementById('celebrationTitle');
+        const celebrationText = document.getElementById('celebrationText');
+        const closeCelebration = document.getElementById('closeCelebration');
+        
+        const themeSelectorBtn = document.getElementById('themeSelectorBtn');
+        const themeOptions = document.getElementById('themeOptions');
+        const themeButtons = document.querySelectorAll('.theme-option');
+        const themeToggle = document.getElementById('themeToggle');
+        const switchUserBtn = document.getElementById('switchUserBtn');
+        const otherUserName = document.getElementById('otherUserName');
+        const analyticsBtn = document.getElementById('analyticsBtn');
+        const closeAnalytics = document.getElementById('closeAnalytics');
+        const analyticsPanel = document.getElementById('analyticsPanel');
+        const setGoalsBtn = document.getElementById('setGoalsBtn');
+        
+        const userCSE = document.getElementById('userCSE');
+        const userNEET = document.getElementById('userNEET');
+        const quoteBox = document.getElementById('quoteBox');
+        const quoteText = document.getElementById('quoteText');
+        const closeQuote = document.getElementById('closeQuote');
+        
+        const cseTaskInput = document.getElementById('cseTaskInput');
+        const cseAddTask = document.getElementById('cseAddTask');
+        const cseTaskList = document.getElementById('cseTaskList');
+        const cseImportant = document.getElementById('cseImportant');
+        const neetTaskInput = document.getElementById('neetTaskInput');
+        const neetAddTask = document.getElementById('neetAddTask');
+        const neetTaskList = document.getElementById('neetTaskList');
+        const neetImportant = document.getElementById('neetImportant');
+        
+        const cseProgressCircle = document.getElementById('cseProgressCircle');
+        const neetProgressCircle = document.getElementById('neetProgressCircle');
+        const cseProgressPercent = document.getElementById('cseProgressPercent');
+        const neetProgressPercent = document.getElementById('neetProgressPercent');
+        const cseDailyPercent = document.getElementById('cseDailyPercent');
+        const neetDailyPercent = document.getElementById('neetDailyPercent');
+        
+        const cseBadgesContainer = document.getElementById('cseBadges');
+        const neetBadgesContainer = document.getElementById('neetBadges');
+        const weeklyGoalsContainer = document.getElementById('weeklyGoals');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const motivationInput = document.getElementById('motivationInput');
+        const sendMotivationBtn = document.getElementById('sendMotivationBtn');
+        const quickMessageBtns = document.querySelectorAll('.quick-message-btn');
+        
+        const completeSound = document.getElementById('completeSound');
+        const messageSound = document.getElementById('messageSound');
+        const celebrationSound = document.getElementById('celebrationSound');
+        
+        // State
+        let currentUser = 'CSE';
+        let streakCount = 1;
+        let lastActiveDate = '';
+        let productivityChart = null;
+        let splashAnimationCompleted = false;
+        
+        // Badge Definitions
+        const badges = {
+            cse: [
+                { id: 'first_code', name: 'First Code', icon: '👨‍💻', desc: 'Complete first task', earned: false },
+                { id: 'coder_novice', name: 'Coder Novice', icon: '💻', desc: 'Complete 10 tasks', earned: false },
+                { id: 'bug_hunter', name: 'Bug Hunter', icon: '🐛', desc: '5 tasks in one day', earned: false },
+                { id: 'streak_master', name: 'Streak Master', icon: '🔥', desc: '7-day streak', earned: false },
+                { id: 'full_stack', name: 'Full Stack', icon: '🚀', desc: '50 total tasks', earned: false },
+                { id: 'perfect_day', name: 'Perfect Day', icon: '⭐', desc: '100% daily completion', earned: false }
+            ],
+            neet: [
+                { id: 'first_chapter', name: 'First Chapter', icon: '📖', desc: 'Complete first task', earned: false },
+                { id: 'biology_buff', name: 'Biology Buff', icon: '🧬', desc: 'Complete 10 tasks', earned: false },
+                { id: 'study_marathon', name: 'Study Marathon', icon: '⚗️', desc: '5 tasks in one day', earned: false },
+                { id: 'consistency_king', name: 'Consistency King', icon: '📚', desc: '7-day streak', earned: false },
+                { id: 'neet_ready', name: 'NEET Ready', icon: '🎯', desc: '50 total tasks', earned: false },
+                { id: 'study_perfect', name: 'Study Perfect', icon: '🏆', desc: '100% daily completion', earned: false }
+            ]
+        };
+        
+        // Weekly Goals
+        let weeklyGoals = [
+            { id: 1, title: 'Complete 20 Tasks', current: 0, target: 20, type: 'both', completed: false },
+            { id: 2, title: 'Maintain 5-Day Streak', current: 1, target: 5, type: 'streak', completed: false },
+            { id: 3, title: 'Achieve 80% Daily Completion', current: 0, target: 3, type: 'daily', completed: false }
+        ];
+        
+        // Motivational Quotes
+        const quotes = [
+            "One task down, legend status loading... 🔥",
+            "You're crushing it! Keep going! 💪",
+            "Productivity level: OVER 9000! 🚀",
+            "Every checkmark brings you closer to your goal. 🌟",
+            "You and your partner are unstoppable! ❤️",
+            "Small steps lead to big achievements. 📈",
+            "Stay focused, stay awesome. 😎",
+            "The grind never stops, and neither do you! ⚡",
+            "Another win for the power couple! 🏆",
+            "Excellence is a habit. You're building it. 📚"
+        ];
+        
+        // ============================================
+        // SPLASH SCREEN ANIMATION
+        // ============================================
+        function playSplashAnimation() {
+            if (localStorage.getItem('skipSplash') === 'true') {
+                splashScreen.classList.add('hidden');
+                setTimeout(() => splashScreen.style.display = 'none', 500);
+                initializeApp();
+                return;
+            }
+            
+            // Reset all elements
+            splashAvatars.style.opacity = '0';
+            splashAvatars.style.transform = 'translateY(20px)';
+            splashTitle.style.opacity = '0';
+            splashHeart.style.opacity = '0';
+            splashHeart.style.transform = 'scale(0.5)';
+            splashNames.style.opacity = '0';
+            splashSubtitle.style.opacity = '0';
+            splashProgress.style.width = '0%';
+            
+            // Phase 1: Avatars appear
+            setTimeout(() => {
+                splashAvatars.style.transition = 'all 0.8s ease';
+                splashAvatars.style.opacity = '1';
+                splashAvatars.style.transform = 'translateY(0)';
+            }, 300);
+            
+            // Phase 2: Title types out
+            setTimeout(() => {
+                splashTitle.style.transition = 'opacity 0.5s ease 0.5s';
+                splashTitle.style.opacity = '1';
+                splashTitle.querySelector('::after').style.animation = 'typewriter 2s steps(30) forwards';
+            }, 800);
+            
+            // Phase 3: Avatars come together
+            setTimeout(() => {
+                const avatars = document.querySelectorAll('.splash-avatar');
+                avatars[0].style.transform = 'translateX(40px)';
+                avatars[1].style.transform = 'translateX(-40px)';
+            }, 2000);
+            
+            // Phase 4: Heart appears
+            setTimeout(() => {
+                splashHeart.style.transition = 'all 0.6s ease';
+                splashHeart.style.opacity = '1';
+                splashHeart.style.transform = 'scale(1)';
+                
+                // Heartbeat animation
+                setInterval(() => {
+                    splashHeart.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        splashHeart.style.transform = 'scale(1)';
+                    }, 300);
+                }, 2000);
+            }, 2400);
+            
+            // Phase 5: Names appear
+            setTimeout(() => {
+                splashNames.style.transition = 'all 0.6s ease';
+                splashNames.style.opacity = '1';
+            }, 2800);
+            
+            // Phase 6: Subtitle appears
+            setTimeout(() => {
+                splashSubtitle.style.transition = 'opacity 0.5s ease';
+                splashSubtitle.style.opacity = '1';
+                
+                // Progress bar fills
+                splashProgress.style.transition = 'width 1.5s ease';
+                splashProgress.style.width = '100%';
+            }, 3200);
+            
+            // Phase 7: Transition to app
+            setTimeout(() => {
+                splashScreen.style.transition = 'opacity 0.8s ease';
+                splashScreen.classList.add('hidden');
+                setTimeout(() => {
+                    splashScreen.style.display = 'none';
+                    splashAnimationCompleted = true;
+                    initializeApp();
+                }, 800);
+            }, 4500);
+        }
+        
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        function initializeApp() {
+            loadSavedData();
+            updateStreak();
+            updateProgressBars();
+            updateBadges();
+            updateWeeklyGoals();
+            loadMotivationMessages();
+            setupEventListeners();
+            
+            // Add sample tasks if first time
+            if (JSON.parse(localStorage.getItem('cseTasks') || '[]').length === 0) {
+                addSampleTasks();
+            }
+            
+            console.log("🚀 Ultimate Power Couple Productivity Suite v4.0 Loaded!");
+        }
+        
+        function loadSavedData() {
+            // Load saved theme
+            const savedTheme = localStorage.getItem('selectedTheme') || 'midnight';
+            document.body.className = `theme-${savedTheme}`;
+            
+            // Load saved theme mode
+            if (localStorage.getItem('themeMode') === 'light') {
+                document.body.classList.add('light-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i> Theme';
+            }
+            
+            // Load CSE data
+            const cseTasks = JSON.parse(localStorage.getItem('cseTasks') || '[]');
+            cseTaskList.innerHTML = '';
+            cseTasks.forEach((task, index) => addTaskToList(task.text, task.completed, 'CSE', index));
+            
+            cseImportant.value = localStorage.getItem('cseImportant') || '';
+            
+            // Load NEET data
+            const neetTasks = JSON.parse(localStorage.getItem('neetTasks') || '[]');
+            neetTaskList.innerHTML = '';
+            neetTasks.forEach((task, index) => addTaskToList(task.text, task.completed, 'NEET', index));
+            
+            neetImportant.value = localStorage.getItem('neetImportant') || '';
+            
+            // Load streak
+            streakCount = parseInt(localStorage.getItem('streakCount')) || 1;
+            lastActiveDate = localStorage.getItem('lastActiveDate') || '';
+            
+            // Load earned badges
+            const earnedBadges = JSON.parse(localStorage.getItem('earnedBadges') || '{"cse":[],"neet":[]}');
+            badges.cse.forEach(badge => {
+                badge.earned = earnedBadges.cse.includes(badge.id);
+            });
+            badges.neet.forEach(badge => {
+                badge.earned = earnedBadges.neet.includes(badge.id);
+            });
+            
+            // Load weekly goals
+            const savedGoals = JSON.parse(localStorage.getItem('weeklyGoals'));
+            if (savedGoals) weeklyGoals = savedGoals;
+            
+            // Load motivation messages
+            loadMotivationMessages();
+        }
+        
+        // ============================================
+        // TASK MANAGEMENT
+        // ============================================
+        function addTaskToList(text, completed = false, user, index = null) {
+            if (!text.trim()) return;
+            
+            const list = user === 'CSE' ? cseTaskList : neetTaskList;
+            const li = document.createElement('li');
+            li.className = `task-item ${user.toLowerCase()}`;
+            li.dataset.index = index !== null ? index : list.children.length;
+            
+            li.innerHTML = `
+                <div class="task-content">
+                    <input type="checkbox" class="task-checkbox" ${completed ? 'checked' : ''}>
+                    <span class="task-text ${completed ? 'completed' : ''}">${escapeHtml(text)}</span>
+                </div>
+                <div class="task-actions">
+                    <button class="delete-btn" title="Delete task">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            list.appendChild(li);
+            
+            const checkbox = li.querySelector('.task-checkbox');
+            const deleteBtn = li.querySelector('.delete-btn');
+            const taskSpan = li.querySelector('.task-text');
+            
+            checkbox.addEventListener('change', function() {
+                const wasCompleted = taskSpan.classList.contains('completed');
+                taskSpan.classList.toggle('completed', this.checked);
+                
+                if (this.checked && !wasCompleted) {
+                    // Record completion date
+                    const tasks = JSON.parse(localStorage.getItem(user === 'CSE' ? 'cseTasks' : 'neetTasks')) || [];
+                    const taskIndex = parseInt(li.dataset.index);
+                    
+                    if (tasks[taskIndex]) {
+                        tasks[taskIndex].completed = true;
+                        tasks[taskIndex].completedDate = new Date().toISOString().split('T')[0];
+                        localStorage.setItem(user === 'CSE' ? 'cseTasks' : 'neetTasks', JSON.stringify(tasks));
+                    }
+                    
+                    showMotivation();
+                    checkForBadges(user);
+                    updateWeeklyGoalProgress();
+                } else if (!this.checked && wasCompleted) {
+                    // Mark as incomplete
+                    const tasks = JSON.parse(localStorage.getItem(user === 'CSE' ? 'cseTasks' : 'neetTasks')) || [];
+                    const taskIndex = parseInt(li.dataset.index);
+                    
+                    if (tasks[taskIndex]) {
+                        tasks[taskIndex].completed = false;
+                        localStorage.setItem(user === 'CSE' ? 'cseTasks' : 'neetTasks', JSON.stringify(tasks));
+                    }
+                }
+                
+                saveTasks(user);
+            });
+            
+            deleteBtn.addEventListener('click', function() {
+                li.style.animation = 'taskAppear 0.3s reverse';
+                setTimeout(() => {
+                    const tasks = JSON.parse(localStorage.getItem(user === 'CSE' ? 'cseTasks' : 'neetTasks')) || [];
+                    const taskIndex = parseInt(li.dataset.index);
+                    tasks.splice(taskIndex, 1);
+                    localStorage.setItem(user === 'CSE' ? 'cseTasks' : 'neetTasks', JSON.stringify(tasks));
+                    
+                    // Re-index remaining tasks
+                    const remainingTasks = list.querySelectorAll('.task-item');
+                    remainingTasks.forEach((item, idx) => {
+                        item.dataset.index = idx;
+                    });
+                    
+                    saveTasks(user);
+                }, 300);
+            });
+        }
+        
+        function saveTasks(user) {
+            if (user === 'CSE') {
+                const tasks = [];
+                document.querySelectorAll('#cseTaskList .task-item').forEach(item => {
+                    tasks.push({
+                        text: item.querySelector('.task-text').textContent,
+                        completed: item.querySelector('.task-checkbox').checked,
+                        completedDate: localStorage.getItem('cseTasks') ? 
+                            JSON.parse(localStorage.getItem('cseTasks'))[parseInt(item.dataset.index)]?.completedDate : null
+                    });
+                });
+                localStorage.setItem('cseTasks', JSON.stringify(tasks));
+                localStorage.setItem('cseImportant', cseImportant.value);
+            } else {
+                const tasks = [];
+                document.querySelectorAll('#neetTaskList .task-item').forEach(item => {
+                    tasks.push({
+                        text: item.querySelector('.task-text').textContent,
+                        completed: item.querySelector('.task-checkbox').checked,
+                        completedDate: localStorage.getItem('neetTasks') ? 
+                            JSON.parse(localStorage.getItem('neetTasks'))[parseInt(item.dataset.index)]?.completedDate : null
+                    });
+                });
+                localStorage.setItem('neetTasks', JSON.stringify(tasks));
+                localStorage.setItem('neetImportant', neetImportant.value);
+            }
+            
+            updateProgressBars();
+        }
+        
+        // ============================================
+        // PROGRESS & BADGES
+        // ============================================
+        function updateProgressBars() {
+            // CSE Progress
+            const cseTasks = JSON.parse(localStorage.getItem('cseTasks') || '[]');
+            const cseCompleted = cseTasks.filter(t => t.completed).length;
+            const cseTotal = cseTasks.length;
+            const csePercent = cseTotal > 0 ? Math.round((cseCompleted / cseTotal) * 100) : 0;
+            
+            const cseCircumference = 2 * Math.PI * 54;
+            const cseOffset = cseCircumference - (cseCircumference * csePercent) / 100;
+            cseProgressCircle.style.strokeDashoffset = cseOffset;
+            cseProgressCircle.style.strokeDasharray = cseCircumference;
+            cseProgressPercent.textContent = `${csePercent}%`;
+            
+            // CSE Daily Progress
+            const today = new Date().toISOString().split('T')[0];
+            const cseTodayTasks = cseTasks.filter(t => t.completed && t.completedDate === today).length;
+            const cseTodayPercent = cseTodayTasks > 0 ? Math.min(100, Math.round((cseTodayTasks / 5) * 100)) : 0;
+            cseDailyPercent.textContent = `${cseTodayPercent}%`;
+            
+            // NEET Progress
+            const neetTasks = JSON.parse(localStorage.getItem('neetTasks') || '[]');
+            const neetCompleted = neetTasks.filter(t => t.completed).length;
+            const neetTotal = neetTasks.length;
+            const neetPercent = neetTotal > 0 ? Math.round((neetCompleted / neetTotal) * 100) : 0;
+            
+            const neetCircumference = 2 * Math.PI * 54;
+            const neetOffset = neetCircumference - (neetCircumference * neetPercent) / 100;
+            neetProgressCircle.style.strokeDashoffset = neetOffset;
+            neetProgressCircle.style.strokeDasharray = neetCircumference;
+            neetProgressPercent.textContent = `${neetPercent}%`;
+            
+            // NEET Daily Progress
+            const neetTodayTasks = neetTasks.filter(t => t.completed && t.completedDate === today).length;
+            const neetTodayPercent = neetTodayTasks > 0 ? Math.min(100, Math.round((neetTodayTasks / 5) * 100)) : 0;
+            neetDailyPercent.textContent = `${neetTodayPercent}%`;
+        }
+        
+        function updateBadges() {
+            cseBadgesContainer.innerHTML = '';
+            neetBadgesContainer.innerHTML = '';
+            
+            badges.cse.forEach(badge => {
+                const badgeEl = createBadgeElement(badge);
+                cseBadgesContainer.appendChild(badgeEl);
+            });
+            
+            badges.neet.forEach(badge => {
+                const badgeEl = createBadgeElement(badge);
+                neetBadgesContainer.appendChild(badgeEl);
+            });
+        }
+        
+        function createBadgeElement(badge) {
+            const div = document.createElement('div');
+            div.className = `badge ${badge.earned ? 'earned' : 'locked'}`;
+            div.title = badge.desc + (badge.earned ? ' ✓' : ' 🔒');
+            div.innerHTML = `
+                <div class="badge-icon">${badge.icon}</div>
+                <div class="badge-name">${badge.name}</div>
+            `;
+            return div;
+        }
+        
+        function checkForBadges(user) {
+            const userBadges = user === 'CSE' ? badges.cse : badges.neet;
+            const tasks = JSON.parse(localStorage.getItem(user === 'CSE' ? 'cseTasks' : 'neetTasks')) || [];
+            const completedTasks = tasks.filter(t => t.completed).length;
+            const today = new Date().toISOString().split('T')[0];
+            const todayCompleted = tasks.filter(t => t.completed && t.completedDate === today).length;
+            
+            let earnedNewBadge = false;
+            let newBadgeName = '';
+            
+            userBadges.forEach(badge => {
+                if (!badge.earned) {
+                    let earned = false;
+                    
+                    switch(badge.id) {
+                        case 'first_code':
+                        case 'first_chapter':
+                            earned = completedTasks >= 1;
+                            break;
+                        case 'coder_novice':
+                        case 'biology_buff':
+                            earned = completedTasks >= 10;
+                            break;
+                        case 'bug_hunter':
+                        case 'study_marathon':
+                            earned = todayCompleted >= 5;
+                            break;
+                        case 'streak_master':
+                        case 'consistency_king':
+                            earned = streakCount >= 7;
+                            break;
+                        case 'full_stack':
+                        case 'neet_ready':
+                            earned = completedTasks >= 50;
+                            break;
+                        case 'perfect_day':
+                        case 'study_perfect':
+                            const totalTasks = tasks.length;
+                            earned = totalTasks > 0 && todayCompleted === totalTasks;
+                            break;
+                    }
+                    
+                    if (earned) {
+                        badge.earned = true;
+                        earnedNewBadge = true;
+                        newBadgeName = badge.name;
+                        
+                        const earnedBadges = JSON.parse(localStorage.getItem('earnedBadges') || '{"cse":[],"neet":[]}');
+                        if (user === 'CSE' && !earnedBadges.cse.includes(badge.id)) {
+                            earnedBadges.cse.push(badge.id);
+                        } else if (user === 'NEET' && !earnedBadges.neet.includes(badge.id)) {
+                            earnedBadges.neet.push(badge.id);
+                        }
+                        localStorage.setItem('earnedBadges', JSON.stringify(earnedBadges));
+                    }
+                }
+            });
+            
+            if (earnedNewBadge) {
+                showCelebration('Badge Unlocked!', `${newBadgeName} badge earned!`);
+                updateBadges();
+            }
+        }
+        
+        // ============================================
+        // WEEKLY GOALS
+        // ============================================
+        function updateWeeklyGoals() {
+            weeklyGoalsContainer.innerHTML = '';
+            
+            weeklyGoals.forEach(goal => {
+                const progressPercent = Math.min(100, Math.round((goal.current / goal.target) * 100));
+                
+                const goalEl = document.createElement('div');
+                goalEl.className = 'goal-item';
+                goalEl.innerHTML = `
+                    <div class="goal-info">
+                        <h4>${goal.title}</h4>
+                        <p>${goal.current}/${goal.target} ${goal.type === 'daily' ? 'days' : 'tasks'}</p>
+                    </div>
+                    <div class="goal-progress">
+                        <div class="goal-progress-fill" style="width: ${progressPercent}%"></div>
+                    </div>
+                `;
+                weeklyGoalsContainer.appendChild(goalEl);
+                
+                // Check if goal is completed
+                if (goal.current >= goal.target && !goal.completed) {
+                    goal.completed = true;
+                    showCelebration('Goal Achieved!', `Completed: ${goal.title}!`);
+                }
+            });
+            
+            localStorage.setItem('weeklyGoals', JSON.stringify(weeklyGoals));
+        }
+        
+        function updateWeeklyGoalProgress() {
+            const totalCompleted = getTotalCompletedTasks();
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Update goal 1: Complete tasks
+            weeklyGoals[0].current = totalCompleted;
+            
+            // Update goal 2: Streak
+            weeklyGoals[1].current = streakCount;
+            
+            // Update goal 3: Daily completion
+            const cseTasks = JSON.parse(localStorage.getItem('cseTasks') || '[]');
+            const neetTasks = JSON.parse(localStorage.getItem('neetTasks') || '[]');
+            const cseToday = cseTasks.filter(t => t.completed && t.completedDate === today).length;
+            const neetToday = neetTasks.filter(t => t.completed && t.completedDate === today).length;
+            const cseTotal = cseTasks.length;
+            const neetTotal = neetTasks.length;
+            
+            const cseDailyPercent = cseTotal > 0 ? (cseToday / cseTotal) * 100 : 0;
+            const neetDailyPercent = neetTotal > 0 ? (neetToday / neetTotal) * 100 : 0;
+            const avgDailyPercent = (cseDailyPercent + neetDailyPercent) / 2;
+            
+            if (avgDailyPercent >= 80) {
+                weeklyGoals[2].current = Math.min(weeklyGoals[2].target, weeklyGoals[2].current + 1);
+            }
+            
+            updateWeeklyGoals();
+        }
+        
+        function getTotalCompletedTasks() {
+            const cseTasks = JSON.parse(localStorage.getItem('cseTasks') || '[]');
+            const neetTasks = JSON.parse(localStorage.getItem('neetTasks') || '[]');
+            return cseTasks.filter(t => t.completed).length + neetTasks.filter(t => t.completed).length;
+        }
+        
+        // ============================================
+        // STREAK MANAGEMENT
+        // ============================================
+        function updateStreak() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (!lastActiveDate) {
+                lastActiveDate = today;
+                localStorage.setItem('lastActiveDate', today);
+                localStorage.setItem('streakCount', '1');
+                return;
+            }
+            
+            if (today !== lastActiveDate) {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+                
+                if (lastActiveDate === yesterdayStr) {
+                    streakCount++;
+                    if (streakCount % 7 === 0) {
+                        showCelebration('Weekly Streak!', `You're on a ${streakCount}-day streak! 🔥`);
+                    }
+                } else {
+                    streakCount = 1;
+                }
+                
+                lastActiveDate = today;
+                localStorage.setItem('lastActiveDate', today);
+                localStorage.setItem('streakCount', streakCount.toString());
+            }
+        }
+        
+        // ============================================
+        // MOTIVATION & QUOTES
+        // ============================================
+        function showMotivation() {
+            completeSound.currentTime = 0;
+            completeSound.play().catch(e => console.log("Audio play failed:", e));
+            
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            quoteText.textContent = randomQuote;
+            quoteBox.classList.add('active');
+            
+            // Launch confetti
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: currentUser === 'CSE' ? 
+                    [getComputedStyle(document.documentElement).getPropertyValue('--cse-primary'),
+                     getComputedStyle(document.documentElement).getPropertyValue('--cse-secondary')] :
+                    [getComputedStyle(document.documentElement).getPropertyValue('--neet-primary'),
+                     getComputedStyle(document.documentElement).getPropertyValue('--neet-secondary')]
+            });
+            
+            setTimeout(() => {
+                quoteBox.classList.remove('active');
+            }, 4000);
+        }
+        
+        function loadMotivationMessages() {
+            const messages = JSON.parse(localStorage.getItem('motivationMessages')) || [];
+            messagesContainer.innerHTML = '';
+            messages.forEach(msg => {
+                addMessageToBoard(msg.sender, msg.text, msg.time);
+            });
+        }
+        
+        function addMessageToBoard(sender, text, time) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender === (currentUser === 'CSE' ? 'CSE Student' : 'NEET Prepper') ? 'sent' : ''}`;
+            messageDiv.innerHTML = `
+                <div class="message-sender">${escapeHtml(sender)}</div>
+                <div class="message-text">${escapeHtml(text)}</div>
+                <div class="message-time">${time}</div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function sendMotivationMessage(text) {
+            if (!text.trim()) return;
+            
+            const message = {
+                sender: currentUser === 'CSE' ? 'CSE Student' : 'NEET Prepper',
+                text: text,
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            };
+            
+            addMessageToBoard(message.sender, message.text, message.time);
+            
+            const messages = JSON.parse(localStorage.getItem('motivationMessages')) || [];
+            messages.push(message);
+            localStorage.setItem('motivationMessages', JSON.stringify(messages.slice(-50)));
+            
+            messageSound.currentTime = 0;
+            messageSound.play();
+            
+            motivationInput.value = '';
+        }
+        
+        // ============================================
+        // CELEBRATION
+        // ============================================
+        function showCelebration(title, text) {
+            celebrationTitle.textContent = title;
+            celebrationText.textContent = text;
+            celebrationOverlay.classList.add('active');
+            celebrationSound.currentTime = 0;
+            celebrationSound.play().catch(e => console.log("Audio error:", e));
+            
+            confetti({
+                particleCount: 200,
+                spread: 100,
+                origin: { y: 0.5 }
+            });
+        }
+        
+        // ============================================
+        // ANALYTICS
+        // ============================================
+        function setupAnalyticsChart() {
+            if (productivityChart) {
+                productivityChart.destroy();
+            }
+            
+            const ctx = document.getElementById('productivityChart').getContext('2d');
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            
+            // Generate sample data
+            const cseData = days.map(() => Math.floor(Math.random() * 10) + 2);
+            const neetData = days.map(() => Math.floor(Math.random() * 10) + 2);
+            
+            productivityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [
+                        {
+                            label: 'CSE Tasks',
+                            data: cseData,
+                            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--cse-primary'),
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'NEET Tasks',
+                            data: neetData,
+                            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--neet-primary'),
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-primary'),
+                                font: {
+                                    family: "'Poppins', sans-serif"
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'var(--bg-secondary)',
+                            titleColor: 'var(--text-primary)',
+                            bodyColor: 'var(--text-primary)',
+                            borderColor: 'var(--border-color)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'var(--border-color)'
+                            },
+                            ticks: {
+                                color: 'var(--text-secondary)',
+                                font: {
+                                    family: "'Poppins', sans-serif"
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'var(--border-color)'
+                            },
+                            ticks: {
+                                color: 'var(--text-secondary)',
+                                font: {
+                                    family: "'Poppins', sans-serif"
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function switchUser() {
+            if (currentUser === 'CSE') {
+                userCSE.classList.remove('active');
+                userNEET.classList.add('active');
+                currentUser = 'NEET';
+                otherUserName.textContent = 'CSE';
+            } else {
+                userNEET.classList.remove('active');
+                userCSE.classList.add('active');
+                currentUser = 'CSE';
+                otherUserName.textContent = 'NEET';
+            }
+        }
+        
+        function changeTheme(theme) {
+            document.body.className = `theme-${theme}`;
+            if (localStorage.getItem('themeMode') === 'light') {
+                document.body.classList.add('light-mode');
+            }
+            localStorage.setItem('selectedTheme', theme);
+            themeOptions.classList.remove('active');
+        }
+        
+        function toggleThemeMode() {
+            document.body.classList.toggle('light-mode');
+            const icon = themeToggle.querySelector('i');
+            if (document.body.classList.contains('light-mode')) {
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('themeMode', 'light');
+            } else {
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('themeMode', 'dark');
+            }
+        }
+        
+        function addSampleTasks() {
+            const cseSampleTasks = [
+                "Complete Web Development tutorial",
+                "Revise Data Structures algorithms",
+                "Python programming assignment",
+                "Attend college lectures",
+                "Work on mini-project documentation"
+            ];
+            
+            const neetSampleTasks = [
+                "Biology Chapter 5: Human Physiology",
+                "Solve Physics mechanics MCQs",
+                "Chemistry organic reactions practice",
+                "Previous year paper analysis",
+                "Meditation for focus and concentration"
+            ];
+            
+            cseSampleTasks.forEach((task, index) => {
+                addTaskToList(task, index < 2, 'CSE', index);
+            });
+            
+            neetSampleTasks.forEach((task, index) => {
+                addTaskToList(task, index < 2, 'NEET', index);
+            });
+            
+            saveTasks('CSE');
+            saveTasks('NEET');
+        }
+        
+        // ============================================
+        // EVENT LISTENERS SETUP
+        // ============================================
+        function setupEventListeners() {
+            // Skip splash
+            skipSplashBtn.addEventListener('click', () => {
+                localStorage.setItem('skipSplash', 'true');
+                splashScreen.classList.add('hidden');
+                setTimeout(() => {
+                    splashScreen.style.display = 'none';
+                    initializeApp();
+                }, 300);
+            });
+            
+            // Close celebration
+            closeCelebration.addEventListener('click', () => {
+                celebrationOverlay.classList.remove('active');
+            });
+            
+            // Theme selector
+            themeSelectorBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                themeOptions.classList.toggle('active');
+            });
+            
+            themeButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    changeTheme(btn.dataset.theme);
+                });
+            });
+            
+            // Close theme options when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!themeSelectorBtn.contains(e.target) && !themeOptions.contains(e.target)) {
+                    themeOptions.classList.remove('active');
+                }
+            });
+            
+            // User switch
+            switchUserBtn.addEventListener('click', switchUser);
+            
+            // Theme mode toggle
+            themeToggle.addEventListener('click', toggleThemeMode);
+            
+            // Analytics
+            analyticsBtn.addEventListener('click', () => {
+                analyticsPanel.classList.add('active');
+                setTimeout(setupAnalyticsChart, 100);
+            });
+            
+            closeAnalytics.addEventListener('click', () => {
+                analyticsPanel.classList.remove('active');
+            });
+            
+            // Close quote
+            closeQuote.addEventListener('click', () => {
+                quoteBox.classList.remove('active');
+            });
+            
+            // CSE task events
+            cseAddTask.addEventListener('click', () => {
+                const text = cseTaskInput.value.trim();
+                if (text) {
+                    addTaskToList(text, false, 'CSE');
+                    cseTaskInput.value = '';
+                    saveTasks('CSE');
+                }
+            });
+            
+            cseTaskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') cseAddTask.click();
+            });
+            
+            // NEET task events
+            neetAddTask.addEventListener('click', () => {
+                const text = neetTaskInput.value.trim();
+                if (text) {
+                    addTaskToList(text, false, 'NEET');
+                    neetTaskInput.value = '';
+                    saveTasks('NEET');
+                }
+            });
+            
+            neetTaskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') neetAddTask.click();
+            });
+            
+            // Auto-save important notes
+            cseImportant.addEventListener('input', () => saveTasks('CSE'));
+            neetImportant.addEventListener('input', () => saveTasks('NEET'));
+            
+            // Motivation board
+            sendMotivationBtn.addEventListener('click', () => {
+                sendMotivationMessage(motivationInput.value);
+            });
+            
+            motivationInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMotivationBtn.click();
+            });
+            
+            quickMessageBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    sendMotivationMessage(btn.dataset.msg);
+                });
+            });
+            
+            // Set goals button
+            setGoalsBtn.addEventListener('click', () => {
+                const newGoal = prompt('Enter a new weekly goal:', 'Complete 15 tasks');
+                const target = prompt('Enter target number:', '15');
+                if (newGoal && target && !isNaN(target)) {
+                    weeklyGoals.push({
+                        id: weeklyGoals.length + 1,
+                        title: newGoal,
+                        current: 0,
+                        target: parseInt(target),
+                        type: 'both',
+                        completed: false
+                    });
+                    updateWeeklyGoals();
+                }
+            });
+            
+            // Mobile swipe gestures
+            let startX = 0;
+            document.addEventListener('touchstart', e => {
+                startX = e.changedTouches[0].screenX;
+            });
+            
+            document.addEventListener('touchend', e => {
+                const endX = e.changedTouches[0].screenX;
+                const diff = startX - endX;
+                
+                if (Math.abs(diff) > 50 && window.innerWidth < 768) {
+                    if (diff > 0 && currentUser === 'CSE') {
+                        switchUser();
+                    } else if (diff < 0 && currentUser === 'NEET') {
+                        switchUser();
+                    }
+                }
+            });
+            
+            // Prevent accidental refresh
+            window.addEventListener('beforeunload', (e) => {
+                if (document.querySelectorAll('.task-checkbox:checked').length > 0) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+        }
+        
+        // ============================================
+        // INITIALIZE EVERYTHING
+        // ============================================
+        window.addEventListener('load', () => {
+            playSplashAnimation();
+        });
+        
+        // Service Worker for PWA (optional)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
