@@ -2605,5 +2605,34 @@
             });
         }
     </script>
+    <script type="module">
+  // 1️⃣ Import Firebase modules (CDN – works with GitHub Pages)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  // 2️⃣ Firebase configuration (PASTE YOUR OWN VALUES)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDcJywyc18mdNxVyBpqz7ux0hWKieo_I1A",
+    authDomain: "tracker-baeb6.firebaseapp.com",
+    projectId: "tracker-baeb6",
+    storageBucket: "tracker-baeb6.firebasestorage.app",
+    messagingSenderId: "865731692581",
+    appId: "1:865731692581:web:14691c854df06ee68217cc"
+  };
+
+  // 3️⃣ Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+
+  // 4️⃣ Initialize Firestore
+  const db = getFirestore(app);
+
+  // 5️⃣ Make Firestore available globally
+  window.db = db;
+
+  // 6️⃣ Sanity check
+  console.log("✅ Firebase + Firestore connected");
+</script>
+
 </body>
 </html>
+
