@@ -2597,12 +2597,7 @@
         });
         
         // Service Worker for PWA (optional)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(err => {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-            });
+       
         }
     </script>
     <script type="module">
@@ -2706,6 +2701,7 @@
 
 </body>
 </html>
+
 
 
 
