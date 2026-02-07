@@ -2632,26 +2632,27 @@
   // 6️⃣ Sanity check
   console.log("✅ Firebase + Firestore connected");
 </script>
-    <script type="module">
-  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  <script type="module">
+  import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  async function loadData() {
-    const docRef = doc(window.db, "tracker", "shared");
-    const snap = await getDoc(docRef);
+  const docRef = doc(window.db, "tracker", "shared");
 
+  // 🔥 REALTIME SHARED DATA LISTENER
+  onSnapshot(docRef, (snap) => {
     if (snap.exists()) {
       window.trackerData = snap.data();
-      if (typeof renderTasks === "function") {
-        renderTasks();
-      }
-      console.log("📥 Data loaded from Firebase");
     } else {
-      console.log("ℹ️ No existing data found");
+      window.trackerData = { tasks: [] };
     }
-  }
 
-  window.addEventListener("load", loadData);
+    if (typeof renderTasks === "function") {
+      renderTasks();
+    }
+
+    console.log("🔄 Realtime data synced");
+  });
 </script>
+ 
 <script type="module">
   import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -2705,5 +2706,6 @@
 
 </body>
 </html>
+
 
 
