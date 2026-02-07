@@ -2600,12 +2600,74 @@
        
         }
     </script>
-    <script type="module">
-  // 1️⃣ Import Firebase modules (CDN – works with GitHub Pages)
+    <!-- ✅ STEP 1: GLOBAL DATA (FIRST) -->
+<script>
+  window.trackerData = {
+    cseTasks: [],
+    neetTasks: []
+  };
+</script>
+
+<!-- ✅ STEP 2: RENDER + TASK FUNCTIONS -->
+<script>
+  function renderTasks() {
+    const cseList = document.getElementById("cseTaskList");
+    const neetList = document.getElementById("neetTaskList");
+
+    if (!cseList || !neetList) return;
+
+    cseList.innerHTML = "";
+    neetList.innerHTML = "";
+
+    window.trackerData.cseTasks.forEach((task, index) => {
+      const li = document.createElement("li");
+      li.textContent = task.text;
+      li.onclick = () => removeCseTask(index);
+      cseList.appendChild(li);
+    });
+
+    window.trackerData.neetTasks.forEach((task, index) => {
+      const li = document.createElement("li");
+      li.textContent = task.text;
+      li.onclick = () => removeNeetTask(index);
+      neetList.appendChild(li);
+    });
+  }
+
+  function addCseTask() {
+    const input = document.getElementById("cseInput");
+    if (!input.value) return;
+
+    window.trackerData.cseTasks.push({ text: input.value });
+    input.value = "";
+    saveData();
+  }
+
+  function addNeetTask() {
+    const input = document.getElementById("neetInput");
+    if (!input.value) return;
+
+    window.trackerData.neetTasks.push({ text: input.value });
+    input.value = "";
+    saveData();
+  }
+
+  function removeCseTask(index) {
+    window.trackerData.cseTasks.splice(index, 1);
+    saveData();
+  }
+
+  function removeNeetTask(index) {
+    window.trackerData.neetTasks.splice(index, 1);
+    saveData();
+  }
+</script>
+
+<!-- ✅ STEP 3: FIREBASE INIT -->
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  // 2️⃣ Firebase configuration (PASTE YOUR OWN VALUES)
   const firebaseConfig = {
     apiKey: "AIzaSyDcJywyc18mdNxVyBpqz7ux0hWKieo_I1A",
     authDomain: "tracker-baeb6.firebaseapp.com",
@@ -2615,92 +2677,48 @@
     appId: "1:865731692581:web:14691c854df06ee68217cc"
   };
 
-  // 3️⃣ Initialize Firebase
   const app = initializeApp(firebaseConfig);
-
-  // 4️⃣ Initialize Firestore
   const db = getFirestore(app);
-
-  // 5️⃣ Make Firestore available globally
   window.db = db;
 
-  // 6️⃣ Sanity check
   console.log("✅ Firebase + Firestore connected");
 </script>
-  <script type="module">
+
+<!-- ✅ STEP 4: REALTIME SYNC (THE MAGIC) -->
+<script type="module">
   import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const docRef = doc(window.db, "tracker", "shared");
 
-  // 🔥 REALTIME SHARED DATA LISTENER
   onSnapshot(docRef, (snap) => {
     if (snap.exists()) {
       window.trackerData = snap.data();
     } else {
-      window.trackerData = { tasks: [] };
+      window.trackerData = {
+        cseTasks: [],
+        neetTasks: []
+      };
     }
 
-    if (typeof renderTasks === "function") {
-      renderTasks();
-    }
-
-    console.log("🔄 Realtime data synced");
+    renderTasks();
+    console.log("🔄 Realtime sync updated");
   });
 </script>
- 
+
+<!-- ✅ STEP 5: SAVE FUNCTION -->
 <script type="module">
   import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  async function saveData() {
+  window.saveData = async function () {
     await setDoc(doc(window.db, "tracker", "shared"), window.trackerData);
     console.log("💾 Data saved");
-  }
-
-  window.saveData = saveData;
-</script>
-<script>
-  // STEP 6 — global data object
-  window.trackerData = window.trackerData || {
-    tasks: []
   };
 </script>
- <script>
-    function renderTasks() {
-      const list = document.getElementById("taskList");
-      list.innerHTML = "";
 
-      window.trackerData.tasks.forEach((task, index) => {
-        const li = document.createElement("li");
-        li.textContent = task.text;
-        li.onclick = () => toggleTask(index);
-        list.appendChild(li);
-      });
-    }
-
-    function addTask() {
-      const input = document.getElementById("taskInput");
-      if (!input.value) return;
-
-      window.trackerData.tasks.push({
-        text: input.value
-      });
-
-      input.value = "";
-      renderTasks();
-
-      saveData(); // 🔥 STEP 8 (SAVE AFTER CHANGE)
-    }
-
-    function toggleTask(index) {
-      window.trackerData.tasks.splice(index, 1);
-      renderTasks();
-
-      saveData(); // 🔥 STEP 8 (SAVE AFTER CHANGE)
-    }
-  </script>
 
 </body>
 </html>
+
 
 
 
